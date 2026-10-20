@@ -2624,14 +2624,15 @@ export const listViewFields = {
 			'folder'
 		],
 		optionalFields: {
-			head: ['perimeter', 'expiryDate'],
-			body: ['perimeter', 'expiry_date']
+			head: ['perimeter', 'expiryDate', 'labels'],
+			body: ['perimeter', 'expiry_date', 'filtering_labels']
 		},
 		filters: {
 			perimeter: PERIMETER_FILTER,
 			entity: ENTITY_FILTER,
 			status: COMPLIANCE_ASSESSMENT_STATUS_FILTER,
 			conclusion: ENTITY_ASSESSMENT_CONCLUSION_FILTER,
+			filtering_labels: LABELS_FILTER,
 			due_date: dateFilter('due_date'),
 			expiry_date: dateFilter('expiry_date')
 		}
@@ -4090,6 +4091,30 @@ export interface ParentActionConfig {
 
 export type TableBatchAction = BatchActionConfig | ParentActionConfig;
 
+const LABELS_BATCH_ACTION: BatchActionConfig = {
+	type: 'group',
+	label: 'manageLabels',
+	icon: 'fa-solid fa-tags',
+	children: [
+		{
+			type: 'add_m2m',
+			label: 'addLabels',
+			icon: 'fa-solid fa-plus',
+			field: 'filtering_labels',
+			optionsEndpoint: 'filtering-labels',
+			multiSelect: true
+		},
+		{
+			type: 'remove_m2m',
+			label: 'removeLabels',
+			icon: 'fa-solid fa-minus',
+			field: 'filtering_labels',
+			optionsEndpoint: 'filtering-labels',
+			multiSelect: true
+		}
+	]
+};
+
 export const quickFilterPresets: Partial<
 	Record<urlModel, { label: string; icon: string; field: string; values: string[] }[]>
 > = {
@@ -4152,29 +4177,7 @@ export const batchActions: Partial<Record<urlModel, BatchActionConfig[]>> = {
 				}
 			]
 		},
-		{
-			type: 'group',
-			label: 'manageLabels',
-			icon: 'fa-solid fa-tags',
-			children: [
-				{
-					type: 'add_m2m',
-					label: 'addLabels',
-					icon: 'fa-solid fa-plus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				},
-				{
-					type: 'remove_m2m',
-					label: 'removeLabels',
-					icon: 'fa-solid fa-minus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				}
-			]
-		},
+		LABELS_BATCH_ACTION,
 		{
 			type: 'change_folder',
 			label: 'changeDomain',
@@ -4246,29 +4249,7 @@ export const batchActions: Partial<Record<urlModel, BatchActionConfig[]>> = {
 			optionsEndpoint: 'actors',
 			multiSelect: true
 		},
-		{
-			type: 'group',
-			label: 'manageLabels',
-			icon: 'fa-solid fa-tags',
-			children: [
-				{
-					type: 'add_m2m',
-					label: 'addLabels',
-					icon: 'fa-solid fa-plus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				},
-				{
-					type: 'remove_m2m',
-					label: 'removeLabels',
-					icon: 'fa-solid fa-minus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				}
-			]
-		},
+		LABELS_BATCH_ACTION,
 		{
 			type: 'change_folder',
 			label: 'changeDomain',
@@ -4437,29 +4418,7 @@ export const batchActions: Partial<Record<urlModel, BatchActionConfig[]>> = {
 			optionsEndpoint: 'actors',
 			multiSelect: true
 		},
-		{
-			type: 'group',
-			label: 'manageLabels',
-			icon: 'fa-solid fa-tags',
-			children: [
-				{
-					type: 'add_m2m',
-					label: 'addLabels',
-					icon: 'fa-solid fa-plus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				},
-				{
-					type: 'remove_m2m',
-					label: 'removeLabels',
-					icon: 'fa-solid fa-minus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				}
-			]
-		},
+		LABELS_BATCH_ACTION,
 		{
 			type: 'change_folder',
 			label: 'changeDomain',
@@ -4676,29 +4635,7 @@ export const batchActions: Partial<Record<urlModel, BatchActionConfig[]>> = {
 			field: 'tier',
 			optionsEndpoint: 'tiers?is_visible=true'
 		},
-		{
-			type: 'group',
-			label: 'manageLabels',
-			icon: 'fa-solid fa-tags',
-			children: [
-				{
-					type: 'add_m2m',
-					label: 'addLabels',
-					icon: 'fa-solid fa-plus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				},
-				{
-					type: 'remove_m2m',
-					label: 'removeLabels',
-					icon: 'fa-solid fa-minus',
-					field: 'filtering_labels',
-					optionsEndpoint: 'filtering-labels',
-					multiSelect: true
-				}
-			]
-		},
+		LABELS_BATCH_ACTION,
 		{
 			type: 'change_folder',
 			label: 'changeDomain',
@@ -4724,6 +4661,7 @@ export const batchActions: Partial<Record<urlModel, BatchActionConfig[]>> = {
 			field: 'conclusion',
 			optionsEndpoint: 'entity-assessments/conclusion'
 		},
+		LABELS_BATCH_ACTION,
 		{ type: 'delete', label: 'delete', icon: 'fa-solid fa-trash' }
 	],
 	'data-transfers': [
