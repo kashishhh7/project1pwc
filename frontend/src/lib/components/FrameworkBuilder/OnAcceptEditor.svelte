@@ -24,7 +24,15 @@
 
 	let { value, rules, subjectModel, onupdate, onaddvendorsubject, scored = true }: Props = $props();
 
-	const TIER_TARGET = 'entity.tier';
+	const TIER_TARGETS: Record<string, string> = {
+		entity: 'entity.tier',
+		solution: 'solution.tier'
+	};
+	const isTierTarget = (target: string) => Object.values(TIER_TARGETS).includes(target);
+	const entry = $derived((value ?? []).find((e) => isTierTarget(e?.target)));
+	const TIER_TARGET = $derived(
+		TIER_TARGETS[subjectModel ?? ''] ?? entry?.target ?? TIER_TARGETS.entity
+	);
 
 	let tiers = $state<Tier[]>([]);
 	$effect(() => {
@@ -41,21 +49,23 @@
 		return () => controller.abort();
 	});
 
-	const entry = $derived((value ?? []).find((e) => e?.target === TIER_TARGET));
 	const config = $derived(entry?.config ?? {});
 	const scoreThresholds = $derived<Threshold[]>(config.bands?.thresholds ?? []);
 	const mapping = $derived<MappingRow[]>(config.mapping ?? []);
 	const numericRules = $derived(rules.filter((r) => r.kind === 'number'));
 	const yesNoRules = $derived(rules.filter((r) => r.kind !== 'number' && r.kind !== 'rating'));
 	const knownKeys = $derived(new Set(tiers.map((t) => t.key)));
-	const forVendors = $derived(subjectModel === 'entity');
+	const forVendors = $derived(TIER_TARGETS[subjectModel ?? ''] === TIER_TARGET);
+	$effect(() => {
+		if (entry && forVendors && entry.target !== TIER_TARGET) write(entry.config);
+	});
 
 	const ruleLabel = (rule: OutcomeRule) =>
 		(rule as OutcomeRule & { label?: string }).label || rule.annotation || rule.ref_id;
 
 	// The tier entry replaced, any other target's entry left as it is.
 	function write(next: Record<string, any> | null) {
-		const others = (value ?? []).filter((e) => e?.target !== TIER_TARGET);
+		const others = (value ?? []).filter((e) => !isTierTarget(e?.target));
 		onupdate(next === null ? others : [...others, { target: TIER_TARGET, config: next }]);
 	}
 
@@ -185,7 +195,9 @@
 			onchange={(e) => enable(e.currentTarget.checked)}
 			data-testid="on-accept-tier-toggle"
 		/>
-		{m.onAcceptSetEntityTier()}
+		{TIER_TARGET === TIER_TARGETS.solution
+			? m.onAcceptSetSolutionTier()
+			: m.onAcceptSetEntityTier()}
 	</label>
 	{#if !forVendors}
 		<div class="flex flex-wrap items-center gap-2 pl-6">
